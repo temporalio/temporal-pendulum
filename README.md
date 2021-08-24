@@ -2,7 +2,7 @@
 
 
 <p align="center">
-<img src="img/pendulum.png" height="500px" alt="Temporal Pendulum Game"/>
+<img src="img/pendulum.png" height="300px" alt="Temporal Pendulum Game"/>
 </p>
 
 This demo uses the following Temporal SDKs:
