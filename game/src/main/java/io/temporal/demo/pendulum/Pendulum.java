@@ -30,7 +30,6 @@ public class Pendulum extends JPanel implements Runnable {
         workflows.get(workflowLang).move();
         try { Thread.sleep(25); } catch (InterruptedException ex) {}
         GameInfo updatedGameInfo = workflows.get(workflowLang).getGameInfo();
-        //System.out.println("***** " + workflows.get(workflowLang).getGameInfo().toString());
         g.drawLine(updatedGameInfo.getAnchorX(), updatedGameInfo.getAnchorY(),
                 updatedGameInfo.getBallX(), updatedGameInfo.getBallY());
         g.fillOval(updatedGameInfo.getAnchorX() - 3, updatedGameInfo.getAnchorY() - 4, 7, 7);
@@ -40,7 +39,6 @@ public class Pendulum extends JPanel implements Runnable {
     public void run() {
         while (true) {
             workflows.get(workflowLang).setupMove();
-            //System.out.println("***** " + workflows.get(workflowLang).getGameInfo().toString());
             repaint();
             try { Thread.sleep(35); } catch (InterruptedException ex) {}
         }
