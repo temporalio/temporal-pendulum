@@ -22,11 +22,11 @@ docker compose up
 
 #### Start the positioning services
 
-##### Java Ppositioning Service
+##### Java Positioning Service
 
 ```shell script
 cd position-java
-mvn compile exec:java -Dexec.mainClass="io.temporal.demo.pendulum.Pendulum"
+mvn compile exec:java -Dexec.mainClass="io.temporal.demo.pendulum.position.Starter"
 ```
 
 ##### PHP Positioning Service
