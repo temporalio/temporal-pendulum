@@ -33,6 +33,7 @@ mvn compile exec:java -Dexec.mainClass="io.temporal.demo.pendulum.position.Start
 
 ```shell script
 cd position-php
+composer install
 ./rr serve
 ```
 
@@ -52,8 +53,8 @@ mvn compile exec:java -Dexec.mainClass="io.temporal.demo.pendulum.Pendulum"
 
 #### Playing the game
 
-Withing the game you can change the positioning implementations
-by clicking on the buttons on the right.
+Within the game you can change the positioning implementations
+by clicking the buttons on the right.
 
 Notice how the state of the pendulum (position, acceleration, movement)
 is preserved once you switch from one workflow to another.
