@@ -51,15 +51,15 @@ public class Pendulum extends JPanel implements Runnable {
 
     public static void main(String[] args) {
         WorkflowClient.start(WorkflowUtils.javaPositionWorkflow::exec, WorkflowUtils.getDefaultGameInfo());
-        WorkflowClient.start(WorkflowUtils.phpPositionWorkflow::exec, WorkflowUtils.getDefaultGameInfo());
+        WorkflowClient.start(WorkflowUtils.nodePositionWorkflow::exec, WorkflowUtils.getDefaultGameInfo());
         WorkflowClient.start(WorkflowUtils.goPositionWorkflow::exec, WorkflowUtils.getDefaultGameInfo());
 
         workflows.put("java", WorkflowUtils.javaPositionWorkflow);
-        workflows.put("php", WorkflowUtils.phpPositionWorkflow);
+        workflows.put("node", WorkflowUtils.nodePositionWorkflow);
         workflows.put("go", WorkflowUtils.goPositionWorkflow);
 
         workflowColors.put("java", Color.BLUE);
-        workflowColors.put("php", Color.ORANGE);
+        workflowColors.put("node", Color.ORANGE);
         workflowColors.put("go", Color.RED);
 
         JFrame jFrame = new JFrame("Temporal Pendulum");
@@ -81,16 +81,16 @@ public class Pendulum extends JPanel implements Runnable {
             }
         });
 
-        JButton phpButton = new JButton("PHP");
-        phpButton.setBackground(Color.ORANGE);
-        phpButton.setOpaque(true);
-        phpButton.setBorderPainted(false);
-        phpButton.setForeground(Color.BLACK);
-        phpButton.addActionListener(new ActionListener() {
+        JButton nodeButton = new JButton("Node");
+        nodeButton.setBackground(Color.ORANGE);
+        nodeButton.setOpaque(true);
+        nodeButton.setBorderPainted(false);
+        nodeButton.setForeground(Color.BLACK);
+        nodeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 GameInfo gameInfo = workflows.get(workflowLang).getGameInfo();
-                workflowLang = "php";
+                workflowLang = "node";
                 workflows.get(workflowLang).updateGameInfo(gameInfo);
                 workflows.get(workflowLang).setupMove();
                 try { Thread.sleep(30); } catch (InterruptedException ex) {}
@@ -118,13 +118,13 @@ public class Pendulum extends JPanel implements Runnable {
             Pendulum pendulumGame = new Pendulum();
             jFrame.add(pendulumGame);
             jFrame.add(javaButton);
-            jFrame.add(phpButton);
+            jFrame.add(nodeButton);
             jFrame.add(goButton);
             jFrame.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e) {
                     WorkflowUtils.javaPositionWorkflow.exit();
-                    WorkflowUtils.phpPositionWorkflow.exit();
+                    WorkflowUtils.nodePositionWorkflow.exit();
                     WorkflowUtils.goPositionWorkflow.exit();
                     System.exit(0);
                 }

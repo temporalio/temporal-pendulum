@@ -93,6 +93,4 @@ func PositionWorkflow(ctx workflow.Context, info GameInfo) error {
 			return nil
 		}
 	}
-
-	return nil
 }
