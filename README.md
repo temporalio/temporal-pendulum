@@ -6,9 +6,10 @@
 
 This demo uses the following Temporal SDKs:
 
+* [Go](https://docs.temporal.io/docs/go/introduction)
 * [Java](https://docs.temporal.io/docs/java/introduction)
 * [Node](https://docs.temporal.io/docs/node/introduction)
-* [Go](https://docs.temporal.io/docs/go/introduction)
+* [PHP](https://docs.temporal.io/docs/php/introduction)
 
 ## Running the demo
 
@@ -21,6 +22,13 @@ docker compose up
 ```
 
 ### Start the positioning services
+
+#### Go Positioning Service
+
+```shell script
+cd position-go
+go run worker/main.go
+```
 
 #### Java Positioning Service
 
@@ -36,11 +44,11 @@ cd position-node
 npm start
 ```
 
-#### Go Positioning Service
+#### PHP Positioning Service
 
 ```shell script
-cd position-go
-go run worker/main.go
+cd position-php
+./rr serve
 ```
 
 ### Start the game
