@@ -1,15 +1,13 @@
 import { Trigger } from '@temporalio/workflow';
 import { Pendulum, GameInfo } from '../interfaces/workflows';
 
+const exited = new Trigger<void>();
+
 let gameInfo: GameInfo;
-let trigger: Trigger<void>;
-let exited: boolean;
 
 async function main(info: GameInfo): Promise<void> {
   gameInfo = info;
-  while (!exited) {
-    await (trigger = new Trigger<void>())
-  }
+  await exited;
 }
 
 function getGameInfo(): GameInfo {
@@ -18,14 +16,12 @@ function getGameInfo(): GameInfo {
 
 function updateGameInfo(info: GameInfo): void {
   gameInfo = info;
-  trigger.resolve();
 }
 
 function setupMove(): void {
   gameInfo.angleAccel = -9.81 / gameInfo.length * Math.sin(gameInfo.angle);
   gameInfo.angleVelocity += gameInfo.angleAccel * gameInfo.dt;
   gameInfo.angle += gameInfo.angleVelocity * gameInfo.dt;
-  trigger.resolve();
 }
 
 function move(): void {
@@ -33,12 +29,10 @@ function move(): void {
   gameInfo.anchorY = gameInfo.height / 4;
   gameInfo.ballX = Math.floor(gameInfo.anchorX + Math.sin(gameInfo.angle) * gameInfo.length);
   gameInfo.ballY = Math.floor(gameInfo.anchorY + Math.cos(gameInfo.angle) * gameInfo.length);
-  trigger.resolve();
 }
 
 function exit(): void {
-  exited = true;
-  trigger.resolve();
+  exited.resolve();
 }
 
 export const workflow: Pendulum = {
