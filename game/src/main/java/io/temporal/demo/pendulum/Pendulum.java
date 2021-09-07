@@ -53,14 +53,17 @@ public class Pendulum extends JPanel implements Runnable {
         WorkflowClient.start(WorkflowUtils.javaPositionWorkflow::exec, WorkflowUtils.getDefaultGameInfo());
         WorkflowClient.start(WorkflowUtils.phpPositionWorkflow::exec, WorkflowUtils.getDefaultGameInfo());
         WorkflowClient.start(WorkflowUtils.goPositionWorkflow::exec, WorkflowUtils.getDefaultGameInfo());
+        WorkflowClient.start(WorkflowUtils.nodePositionWorkflow::exec, WorkflowUtils.getDefaultGameInfo());
 
         workflows.put("java", WorkflowUtils.javaPositionWorkflow);
         workflows.put("php", WorkflowUtils.phpPositionWorkflow);
         workflows.put("go", WorkflowUtils.goPositionWorkflow);
+        workflows.put("node", WorkflowUtils.nodePositionWorkflow);
 
         workflowColors.put("java", Color.BLUE);
         workflowColors.put("php", Color.ORANGE);
         workflowColors.put("go", Color.RED);
+        workflowColors.put("node", Color.CYAN);
 
         JFrame jFrame = new JFrame("Temporal Pendulum");
         jFrame.setLayout(new FlowLayout());
@@ -114,18 +117,36 @@ public class Pendulum extends JPanel implements Runnable {
             }
         });
 
+        JButton nodeButton = new JButton("Node");
+        nodeButton.setBackground(Color.CYAN);
+        nodeButton.setOpaque(true);
+        nodeButton.setBorderPainted(false);
+        nodeButton.setForeground(Color.BLACK);
+        nodeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                GameInfo gameInfo = workflows.get(workflowLang).getGameInfo();
+                workflowLang = "node";
+                workflows.get(workflowLang).updateGameInfo(gameInfo);
+                workflows.get(workflowLang).setupMove();
+                try { Thread.sleep(30); } catch (InterruptedException ex) {}
+            }
+        });
+
         EventQueue.invokeLater(() -> {
             Pendulum pendulumGame = new Pendulum();
             jFrame.add(pendulumGame);
             jFrame.add(javaButton);
             jFrame.add(phpButton);
             jFrame.add(goButton);
+            jFrame.add(nodeButton);
             jFrame.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e) {
                     WorkflowUtils.javaPositionWorkflow.exit();
                     WorkflowUtils.phpPositionWorkflow.exit();
                     WorkflowUtils.goPositionWorkflow.exit();
+                    WorkflowUtils.nodePositionWorkflow.exit();
                     System.exit(0);
                 }
             });
