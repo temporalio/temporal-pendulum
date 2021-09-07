@@ -7,6 +7,8 @@ let exited: boolean;
 
 async function main(info: GameInfo): Promise<void> {
   gameInfo = info;
+  // FIXME: It should suffice to await only the exit trigger,
+  // but the other signals were not being processed.
   while (!exited) {
     await (trigger = new Trigger<void>())
   }
