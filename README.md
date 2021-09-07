@@ -1,7 +1,7 @@
 # Temporal Polyglot Demo - Pendulum
 
 <p align="center">
-<img src="img/pendulum.png" height="300px" alt="Temporal Pendulum Game"/>
+<img src="img/pendulumnew.png" height="300px" alt="Temporal Pendulum Game"/>
 </p>
 
 This demo uses the following Temporal SDKs:
@@ -39,12 +39,34 @@ mvn compile exec:java -Dexec.mainClass="io.temporal.demo.pendulum.position.Start
 
 #### Node Positioning Service
 
+If running for the first time:
+
+```shell script
+cd position-node
+npm install
+npm start
+```
+
+For consecutive runs:
+
 ```shell script
 cd position-node
 npm start
 ```
 
+
 #### PHP Positioning Service
+
+If running for the first time:
+
+```shell script
+cd position-php
+composer install
+composer update
+./rr serve
+```
+
+For consecutive runs: 
 
 ```shell script
 cd position-php
