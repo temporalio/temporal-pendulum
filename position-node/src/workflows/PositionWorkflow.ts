@@ -1,12 +1,13 @@
 import { Trigger } from '@temporalio/workflow';
 import { Pendulum, GameInfo } from '../interfaces/workflows';
 
+const exited = new Trigger<void>();
+
 let gameInfo: GameInfo;
-let exited: Trigger<void>;
 
 async function main(info: GameInfo): Promise<void> {
   gameInfo = info;
-  await (exited = new Trigger<void>())
+  await exited;
 }
 
 function getGameInfo(): GameInfo {
