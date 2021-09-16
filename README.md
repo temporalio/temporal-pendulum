@@ -43,6 +43,7 @@ If running for the first time:
 
 ```shell script
 cd position-node
+nvm use 14
 npm install
 npm start
 ```
@@ -66,7 +67,7 @@ composer update
 ./rr serve
 ```
 
-For consecutive runs: 
+For consecutive runs:
 
 ```shell script
 cd position-php

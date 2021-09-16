@@ -1,6 +1,4 @@
-import { Workflow } from '@temporalio/workflow';
-
-export interface GameInfo {
+export type GameInfo = {
   anchorX: number;
   anchorY: number;
   ballX: number;
@@ -15,8 +13,8 @@ export interface GameInfo {
   speed: number;
 }
 
-export interface Pendulum extends Workflow {
-  main(info: GameInfo): Promise<void>;
+export type Pendulum = (info: GameInfo) => {
+  execute(): Promise<void>;
   queries: {
     getGameInfo(): GameInfo;
   }
@@ -25,5 +23,5 @@ export interface Pendulum extends Workflow {
     setupMove(): void;
     move(): void;
     exit(): void;
-  }
-}
+  };
+};
