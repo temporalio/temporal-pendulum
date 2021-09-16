@@ -1,1 +1,1 @@
-export { pendulum as PositionWorkflow } from './workflow';
+export { pendulum as PositionWorkflow } from './pendulum';
