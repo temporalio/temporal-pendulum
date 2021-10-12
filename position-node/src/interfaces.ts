@@ -11,17 +11,4 @@ export type GameInfo = {
   angleVelocity: number;
   dt: number;
   speed: number;
-}
-
-export type Pendulum = (info: GameInfo) => {
-  execute(): Promise<void>;
-  queries: {
-    getGameInfo(): GameInfo;
-  }
-  signals: {
-    updateGameInfo(info: GameInfo): void;
-    setupMove(): void;
-    move(): void;
-    exit(): void;
-  };
 };

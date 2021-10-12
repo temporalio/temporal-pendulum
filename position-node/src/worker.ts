@@ -2,7 +2,7 @@ import { Worker } from '@temporalio/worker';
 
 async function run() {
   const worker = await Worker.create({
-    workDir: __dirname,
+    workflowsPath: require.resolve('./workflows'),
     activities: undefined,
     taskQueue: 'PendulumNode'
   });
