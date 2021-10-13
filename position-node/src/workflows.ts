@@ -26,8 +26,7 @@ export async function pendulum(info: GameInfo): Promise<void> {
 
   setListener(defineQuery("getGameInfo"), () => gameInfo);
 
-  // FIXME: <GameInfo>
-  setListener(defineSignal<GameInfo[]>("updateGameInfo"), (info: GameInfo) => {
+  setListener(defineSignal<[GameInfo]>("updateGameInfo"), (info: GameInfo) => {
     gameInfo = info;
   });
 
