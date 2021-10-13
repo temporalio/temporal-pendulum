@@ -1,4 +1,4 @@
-export type GameInfo = {
+export interface GameInfo {
   anchorX: number;
   anchorY: number;
   ballX: number;
