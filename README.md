@@ -17,7 +17,7 @@ This demo uses the following Temporal SDKs:
 
 ```shell script
 git clone https://github.com/temporalio/docker-compose.git
-cd  docker-compose
+cd docker-compose
 docker compose up
 ```
 
