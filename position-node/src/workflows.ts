@@ -4,7 +4,21 @@ import {
   setListener,
   Trigger,
 } from "@temporalio/workflow";
-import { GameInfo } from "./interfaces";
+
+export interface GameInfo {
+  anchorX: number;
+  anchorY: number;
+  ballX: number;
+  ballY: number;
+  length: number;
+  width: number;
+  height: number;
+  angle: number;
+  angleAccel: number;
+  angleVelocity: number;
+  dt: number;
+  speed: number;
+};
 
 export async function pendulum(info: GameInfo): Promise<void> {
   const exited = new Trigger<void>();
