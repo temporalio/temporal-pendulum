@@ -1,7 +1,7 @@
 import {
   defineQuery,
   defineSignal,
-  setListener,
+  setHandler,
   Trigger,
 } from "@temporalio/workflow";
 
@@ -34,19 +34,19 @@ export async function pendulum(info: GameInfo): Promise<void> {
   const exited = new Trigger<void>();
   let gameInfo: GameInfo = info;
 
-  setListener(getGameInfoQuery, () => gameInfo);
+  setHandler(getGameInfoQuery, () => gameInfo);
 
-  setListener(updateGameInfoSignal, (info: GameInfo) => {
+  setHandler(updateGameInfoSignal, (info: GameInfo) => {
     gameInfo = info;
   });
 
-  setListener(setupMoveSignal, () => {
+  setHandler(setupMoveSignal, () => {
     gameInfo.angleAccel = (-9.81 / gameInfo.length) * Math.sin(gameInfo.angle);
     gameInfo.angleVelocity += gameInfo.angleAccel * gameInfo.dt;
     gameInfo.angle += gameInfo.angleVelocity * gameInfo.dt;
   });
 
-  setListener(moveSignal, () => {
+  setHandler(moveSignal, () => {
     gameInfo.anchorX = gameInfo.width / 2;
     gameInfo.anchorY = gameInfo.height / 4;
     gameInfo.ballX = Math.floor(
@@ -57,7 +57,7 @@ export async function pendulum(info: GameInfo): Promise<void> {
     );
   });
 
-  setListener(exitSignal, () => {
+  setHandler(exitSignal, () => {
     exited.resolve();
   });
 
