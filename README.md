@@ -43,7 +43,7 @@ If running for the first time:
 
 ```shell script
 cd position-node
-nvm use 14
+nvm use 16
 npm install
 npm start
 ```
@@ -54,7 +54,6 @@ For consecutive runs:
 cd position-node
 npm start
 ```
-
 
 #### PHP Positioning Service
 
