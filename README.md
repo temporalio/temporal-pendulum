@@ -55,7 +55,6 @@ cd position-node
 npm start
 ```
 
-
 #### PHP Positioning Service
 
 If running for the first time:
