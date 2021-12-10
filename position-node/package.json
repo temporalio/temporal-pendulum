@@ -1,5 +1,5 @@
 {
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "scripts": {
     "build": "tsc --build",
@@ -28,6 +28,6 @@
   },
   "name": "position-node",
   "dependencies": {
-    "temporalio": "^0.15.0"
+    "temporalio": "^0.16.0"
   }
 }
