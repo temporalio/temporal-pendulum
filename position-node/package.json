@@ -7,8 +7,7 @@
     "build.watch": "tsc --build --watch",
     "start": "ts-node src/worker.ts",
     "start.watch": "nodemon src/worker.ts",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "workflow": "ts-node src/client.ts"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "nodemonConfig": {
     "execMap": {
@@ -20,8 +19,7 @@
     ]
   },
   "dependencies": {
-    "temporalio": "^1.0.0-rc.0",
-    "uuid": "^8.3.2"
+    "temporalio": "^1.0.0-rc.0"
   },
   "devDependencies": {
     "@temporalio/testing": "^1.0.0-rc.0",
@@ -32,6 +30,7 @@
     "nodemon": "^2.0.14",
     "ts-jest": "^28.0.5",
     "ts-node": "^10.4.0",
-    "typescript": "^4.4.4"
+    "typescript": "^4.4.4",
+    "uuid": "^8.3.2"
   }
 }
