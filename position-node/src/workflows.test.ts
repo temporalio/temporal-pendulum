@@ -1,3 +1,4 @@
+import { WorkflowHandleWithFirstExecutionRunId } from '@temporalio/client';
 import { TestWorkflowEnvironment } from '@temporalio/testing';
 import { Worker, Runtime, DefaultLogger, LogEntry } from '@temporalio/worker';
 import { exitSignal, GameInfo, getGameInfoQuery, pendulum, updateGameInfoSignal } from './workflows';
@@ -49,7 +50,10 @@ test('gameInfo with overrides', () => {
   expect(gameInfo({ anchorX: 1 }).anchorX).toBe(1);
 });
 
-test('pendulum exitSignal', async () => {
+type PendulumHandle = WorkflowHandleWithFirstExecutionRunId<(info: GameInfo) => Promise<unknown>>;
+type PendulumTest = (handle: PendulumHandle) => Promise<unknown>;
+
+async function runPendulum(initialInfo = gameInfo(), fn: PendulumTest = async () => undefined) {
   const { workflowClient, nativeConnection } = testEnv;
   const worker = await Worker.create({
     connection: nativeConnection,
@@ -59,57 +63,36 @@ test('pendulum exitSignal', async () => {
   });
   await worker.runUntil(async () => {
     const handle = await workflowClient.start(pendulum, {
-      args: [gameInfo()],
+      args: [initialInfo],
       workflowId: uuid4(),
       taskQueue: 'test',
     });
-    await handle.signal(exitSignal);
-    const result = await handle.result();
-    expect(result).toBeUndefined;
+    try {
+      await fn(handle); // invoke test
+    } finally {
+      await handle.signal(exitSignal);
+      await handle.result();
+    }
   });
+}
+
+test('pendulum exitSignal', async () => {
+  await runPendulum();
 });
 
 test('pendulum getGameInfoQuery', async () => {
-  const { workflowClient, nativeConnection } = testEnv;
-  const worker = await Worker.create({
-    connection: nativeConnection,
-    taskQueue: 'test',
-    workflowsPath: require.resolve('./workflows'),
-    activities: undefined,
-  });
   const info = gameInfo({ anchorX: 1 });
-  await worker.runUntil(async () => {
-    const handle = await workflowClient.start(pendulum, {
-      args: [info],
-      workflowId: uuid4(),
-      taskQueue: 'test',
-    });
+  await runPendulum(info, async (handle) => {
     const queryResult = await handle.query(getGameInfoQuery);
     expect(queryResult).toEqual(info);
-    await handle.signal(exitSignal);
-    await handle.result();
   });
 });
 
 test('pendulum updateGameInfoSignal', async () => {
-  const { workflowClient, nativeConnection } = testEnv;
-  const worker = await Worker.create({
-    connection: nativeConnection,
-    taskQueue: 'test',
-    workflowsPath: require.resolve('./workflows'),
-    activities: undefined,
-  });
-  await worker.runUntil(async () => {
-    const handle = await workflowClient.start(pendulum, {
-      args: [gameInfo({ anchorX: 1 })],
-      workflowId: uuid4(),
-      taskQueue: 'test',
-    });
+  await runPendulum(gameInfo({ anchorX: 1 }), async (handle) => {
     const update = gameInfo({ anchorY: 1 });
     await handle.signal(updateGameInfoSignal, update);
     const queryResult = await handle.query(getGameInfoQuery);
     expect(queryResult).toEqual(update);
-    await handle.signal(exitSignal);
-    await handle.result();
   });
 });
