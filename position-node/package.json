@@ -5,6 +5,8 @@
   "scripts": {
     "build": "tsc --build",
     "build.watch": "tsc --build --watch",
+    "format": "prettier --write .",
+    "lint": "eslint .",
     "start": "ts-node src/worker.ts",
     "start.watch": "nodemon src/worker.ts",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
@@ -26,8 +28,14 @@
     "@tsconfig/node16": "^1.0.2",
     "@types/jest": "^28.1.3",
     "@types/uuid": "^8.3.4",
+    "@typescript-eslint/eslint-plugin": "^5.29.0",
+    "@typescript-eslint/parser": "^5.29.0",
+    "eslint": "^8.18.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-deprecation": "^1.3.2",
     "jest": "^28.1.1",
     "nodemon": "^2.0.14",
+    "prettier": "^2.7.1",
     "ts-jest": "^28.0.5",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.4",

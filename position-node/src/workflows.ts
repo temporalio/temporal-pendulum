@@ -1,9 +1,4 @@
-import {
-  defineQuery,
-  defineSignal,
-  setHandler,
-  Trigger,
-} from "@temporalio/workflow";
+import { defineQuery, defineSignal, setHandler, Trigger } from '@temporalio/workflow';
 
 export interface GameInfo {
   anchorX: number;
@@ -18,17 +13,17 @@ export interface GameInfo {
   angleVelocity: number;
   dt: number;
   speed: number;
-};
+}
 
-export const getGameInfoQuery = defineQuery("getGameInfo");
+export const getGameInfoQuery = defineQuery('getGameInfo');
 
-export const updateGameInfoSignal = defineSignal<[GameInfo]>("updateGameInfo");
+export const updateGameInfoSignal = defineSignal<[GameInfo]>('updateGameInfo');
 
-export const setupMoveSignal = defineSignal("setupMove");
+export const setupMoveSignal = defineSignal('setupMove');
 
-export const moveSignal = defineSignal("move");
+export const moveSignal = defineSignal('move');
 
-export const exitSignal = defineSignal("exit");
+export const exitSignal = defineSignal('exit');
 
 export async function pendulum(info: GameInfo): Promise<void> {
   const exited = new Trigger<void>();
@@ -49,12 +44,8 @@ export async function pendulum(info: GameInfo): Promise<void> {
   setHandler(moveSignal, () => {
     gameInfo.anchorX = gameInfo.width / 2;
     gameInfo.anchorY = gameInfo.height / 4;
-    gameInfo.ballX = Math.floor(
-      gameInfo.anchorX + Math.sin(gameInfo.angle) * gameInfo.length
-    );
-    gameInfo.ballY = Math.floor(
-      gameInfo.anchorY + Math.cos(gameInfo.angle) * gameInfo.length
-    );
+    gameInfo.ballX = Math.floor(gameInfo.anchorX + Math.sin(gameInfo.angle) * gameInfo.length);
+    gameInfo.ballY = Math.floor(gameInfo.anchorY + Math.cos(gameInfo.angle) * gameInfo.length);
   });
 
   setHandler(exitSignal, () => {

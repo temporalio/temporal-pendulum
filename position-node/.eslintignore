@@ -1,0 +1,5 @@
+.eslintrc.js
+coverage
+lib
+jest.config.js
+node_modules
