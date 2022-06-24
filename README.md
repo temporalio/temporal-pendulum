@@ -43,7 +43,7 @@ If running for the first time:
 
 ```shell script
 cd position-node
-nvm use 16
+nvm use
 npm install
 npm start
 ```
