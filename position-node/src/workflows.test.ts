@@ -1,10 +1,15 @@
-import { WorkflowHandleWithFirstExecutionRunId } from '@temporalio/client';
+import { WorkflowHandle } from '@temporalio/client';
 import { TestWorkflowEnvironment } from '@temporalio/testing';
 import { Worker, Runtime, DefaultLogger, LogEntry } from '@temporalio/worker';
 import { exitSignal, GameInfo, getGameInfoQuery, pendulum, updateGameInfoSignal } from './workflows';
 import { v4 as uuid4 } from 'uuid';
 
+let handle: WorkflowHandle;
 let testEnv: TestWorkflowEnvironment;
+let runPromise: Promise<void>;
+let worker: Worker;
+
+const taskQueue = 'test';
 
 beforeAll(async () => {
   // Use console.log instead of console.error to avoid red output
@@ -18,9 +23,30 @@ beforeAll(async () => {
       stdio: 'inherit',
     },
   });
+
+  const { nativeConnection } = testEnv;
+  worker = await Worker.create({
+    connection: nativeConnection,
+    taskQueue,
+    workflowsPath: require.resolve('./workflows'),
+    activities: undefined,
+  });
+
+  runPromise = worker.run();
+});
+
+beforeEach(async () => {
+  handle = await testEnv.workflowClient.start(pendulum, {
+    args: [gameInfo({ anchorX: 1 })],
+    workflowId: uuid4(),
+    taskQueue,
+  });
 });
 
 afterAll(async () => {
+  worker.shutdown();
+  await runPromise;
+
   await testEnv?.teardown();
 });
 
@@ -50,49 +76,20 @@ test('gameInfo with overrides', () => {
   expect(gameInfo({ anchorX: 1 }).anchorX).toBe(1);
 });
 
-type PendulumHandle = WorkflowHandleWithFirstExecutionRunId<(info: GameInfo) => Promise<unknown>>;
-type PendulumTest = (handle: PendulumHandle) => Promise<unknown>;
-
-async function runPendulum(initialInfo = gameInfo(), fn: PendulumTest = async () => undefined) {
-  const { workflowClient, nativeConnection } = testEnv;
-  const worker = await Worker.create({
-    connection: nativeConnection,
-    taskQueue: 'test',
-    workflowsPath: require.resolve('./workflows'),
-    activities: undefined,
-  });
-  await worker.runUntil(async () => {
-    const handle = await workflowClient.start(pendulum, {
-      args: [initialInfo],
-      workflowId: uuid4(),
-      taskQueue: 'test',
-    });
-    try {
-      await fn(handle); // invoke test
-    } finally {
-      await handle.signal(exitSignal);
-      await handle.result();
-    }
-  });
-}
-
 test('pendulum exitSignal', async () => {
-  await runPendulum();
+  await handle.signal(exitSignal);
+  await handle.result();
 });
 
 test('pendulum getGameInfoQuery', async () => {
   const info = gameInfo({ anchorX: 1 });
-  await runPendulum(info, async (handle) => {
-    const queryResult = await handle.query(getGameInfoQuery);
-    expect(queryResult).toEqual(info);
-  });
+  const queryResult = await handle.query(getGameInfoQuery);
+  expect(queryResult).toEqual(info);
 });
 
 test('pendulum updateGameInfoSignal', async () => {
-  await runPendulum(gameInfo({ anchorX: 1 }), async (handle) => {
-    const update = gameInfo({ anchorY: 1 });
-    await handle.signal(updateGameInfoSignal, update);
-    const queryResult = await handle.query(getGameInfoQuery);
-    expect(queryResult).toEqual(update);
-  });
+  const update = gameInfo({ anchorY: 1 });
+  await handle.signal(updateGameInfoSignal, update);
+  const queryResult = await handle.query(getGameInfoQuery);
+  expect(queryResult).toEqual(update);
 });
