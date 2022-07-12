@@ -1,4 +1,5 @@
 import { WorkflowHandle } from '@temporalio/client';
+import { WorkflowNotFoundError } from '@temporalio/common';
 import { TestWorkflowEnvironment } from '@temporalio/testing';
 import { Worker, Runtime, DefaultLogger, LogEntry } from '@temporalio/worker';
 import { exitSignal, GameInfo, getGameInfoQuery, pendulum, updateGameInfoSignal } from './workflows';
@@ -60,8 +61,7 @@ beforeEach(async () => {
 
 afterEach(async() => {
   await handle.terminate().catch(err => {
-    // TODO: make TypeScript SDK export WorkflowNotFoundError
-    if (err?.name === 'WorkflowNotFoundError') {
+    if (err instanceof WorkflowNotFoundError) {
       return;
     }
 
