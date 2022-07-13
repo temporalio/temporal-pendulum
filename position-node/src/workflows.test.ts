@@ -55,7 +55,7 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   handle = await testEnv.workflowClient.start(pendulum, {
-    args: [{ ...gameInfo, anchorX: 1 }],
+    args: [initInfo],
     workflowId: uuid4(),
     taskQueue,
   });
