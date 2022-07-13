@@ -1,7 +1,6 @@
 import { WorkflowHandle } from '@temporalio/client';
-import { WorkflowNotFoundError } from '@temporalio/common';
 import { TestWorkflowEnvironment } from '@temporalio/testing';
-import { Worker, Runtime, DefaultLogger, LogEntry } from '@temporalio/worker';
+import { Worker, Runtime, DefaultLogger, LogEntry, WorkflowBundleWithSourceMap, bundleWorkflowCode } from '@temporalio/worker';
 import { exitSignal, GameInfo, getGameInfoQuery, pendulum, updateGameInfoSignal } from './workflows';
 import { v4 as uuid4 } from 'uuid';
 
@@ -9,7 +8,9 @@ let handle: WorkflowHandle;
 let testEnv: TestWorkflowEnvironment;
 let runPromise: Promise<void>;
 let worker: Worker;
+let workflowBundle: WorkflowBundleWithSourceMap;
 
+const logger = new DefaultLogger('WARN', (entry: LogEntry) => console.log(`[${entry.level}]`, entry.message));
 const taskQueue = 'test';
 
 const gameInfo: GameInfo = Object.freeze({
@@ -33,7 +34,7 @@ beforeAll(async () => {
   // Use console.log instead of console.error to avoid red output
   // Filter INFO log messages for clearer test output
   Runtime.install({
-    logger: new DefaultLogger('WARN', (entry: LogEntry) => console.log(`[${entry.level}]`, entry.message)),
+    logger,
   });
 
   testEnv = await TestWorkflowEnvironment.create({
@@ -42,18 +43,23 @@ beforeAll(async () => {
     },
   });
 
+  workflowBundle = await bundleWorkflowCode({
+    workflowsPath: require.resolve('./workflows'),
+    logger,
+  });
+});
+
+beforeEach(async () => {
   const { nativeConnection } = testEnv;
   worker = await Worker.create({
     connection: nativeConnection,
     taskQueue,
-    workflowsPath: require.resolve('./workflows'),
+    workflowBundle,
     activities: undefined,
   });
 
   runPromise = worker.run();
-});
 
-beforeEach(async () => {
   handle = await testEnv.workflowClient.start(pendulum, {
     args: [initInfo],
     workflowId: uuid4(),
@@ -62,19 +68,23 @@ beforeEach(async () => {
 });
 
 afterEach(async() => {
-  await handle.terminate().catch(err => {
-    if (err instanceof WorkflowNotFoundError) {
-      return;
-    }
+  const { status } = await handle.describe();
+  if (status.name === 'COMPLETED') {
+    worker.shutdown();
+    await runPromise;
 
-    throw err;
-  });
+    // Terminating a completed Workflow causes an error
+    return;
+  }
+
+  // If test didn't clean up Workflow, terminate it here
+  await handle.terminate();
+
+  worker.shutdown();
+  await runPromise;
 });
 
 afterAll(async () => {
-  worker.shutdown();
-  await runPromise;
-
   await testEnv?.teardown();
 });
 
