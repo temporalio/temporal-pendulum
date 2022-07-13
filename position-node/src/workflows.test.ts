@@ -83,7 +83,7 @@ test('pendulum exitSignal', async () => {
 
 test('pendulum getGameInfoQuery', async () => {
   const queryResult = await handle.query(getGameInfoQuery);
-  expect(queryResult).toEqual(info);
+  expect(queryResult).toEqual(initInfo);
 });
 
 test('pendulum updateGameInfoSignal', async () => {
