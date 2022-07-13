@@ -27,6 +27,8 @@ const gameInfo: GameInfo = Object.freeze({
   speed: 0,
 });
 
+const initInfo = { ...gameInfo, anchorX: 1 };
+
 beforeAll(async () => {
   // Use console.log instead of console.error to avoid red output
   // Filter INFO log messages for clearer test output
