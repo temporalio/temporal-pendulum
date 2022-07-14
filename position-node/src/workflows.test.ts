@@ -3,14 +3,17 @@ import { TestWorkflowEnvironment } from '@temporalio/testing';
 import { Worker, Runtime, DefaultLogger, LogEntry, WorkflowBundleWithSourceMap, bundleWorkflowCode } from '@temporalio/worker';
 import { exitSignal, GameInfo, getGameInfoQuery, pendulum, updateGameInfoSignal } from './workflows';
 import { v4 as uuid4 } from 'uuid';
+import { after, afterEach, before, beforeEach, it } from 'mocha';
+import assert from 'assert';
+import fs from 'fs';
 
 let handle: WorkflowHandle;
 let testEnv: TestWorkflowEnvironment;
 let runPromise: Promise<void>;
 let worker: Worker;
-let workflowBundle: WorkflowBundleWithSourceMap;
 
 const logger = new DefaultLogger('WARN', (entry: LogEntry) => console.log(`[${entry.level}]`, entry.message));
+const shouldWriteCoverage = !!process.env.COVERAGE;
 const taskQueue = 'test';
 
 const gameInfo: GameInfo = Object.freeze({
@@ -30,7 +33,7 @@ const gameInfo: GameInfo = Object.freeze({
 
 const initInfo = { ...gameInfo, anchorX: 1 };
 
-beforeAll(async () => {
+before(async () => {
   // Use console.log instead of console.error to avoid red output
   // Filter INFO log messages for clearer test output
   Runtime.install({
@@ -43,10 +46,9 @@ beforeAll(async () => {
     },
   });
 
-  workflowBundle = await bundleWorkflowCode({
-    workflowsPath: require.resolve('./workflows'),
-    logger,
-  });
+  if (shouldWriteCoverage) {
+    fs.mkdirSync(`${__dirname}/../coverage`);
+  }
 });
 
 beforeEach(async () => {
@@ -54,8 +56,11 @@ beforeEach(async () => {
   worker = await Worker.create({
     connection: nativeConnection,
     taskQueue,
-    workflowBundle,
+    workflowsPath: require.resolve("./workflows"),
     activities: undefined,
+    interceptors: {
+      workflowModules: [require.resolve('./workflows/interceptors')]
+    },
   });
 
   runPromise = worker.run();
@@ -67,40 +72,41 @@ beforeEach(async () => {
   });
 });
 
-afterEach(async() => {
-  const { status } = await handle.describe();
-  if (status.name === 'COMPLETED') {
-    worker.shutdown();
-    await runPromise;
-
-    // Terminating a completed Workflow causes an error
+afterEach(async () => {
+  if (!shouldWriteCoverage) {
     return;
   }
 
-  // If test didn't clean up Workflow, terminate it here
-  await handle.terminate();
+  const testCoverage = await handle.query('__coverage__');
 
+  fs.writeFileSync(
+    `${__dirname}/../coverage/coverage-${handle.workflowId}.json`,
+    JSON.stringify(testCoverage),
+  );
+});
+
+afterEach(async () => {
   worker.shutdown();
   await runPromise;
 });
 
-afterAll(async () => {
+after(async () => {
   await testEnv?.teardown();
 });
 
-test('pendulum exitSignal', async () => {
+it('pendulum exitSignal', async () => {
   await handle.signal(exitSignal);
   await handle.result();
 });
 
-test('pendulum getGameInfoQuery', async () => {
+it('pendulum getGameInfoQuery', async () => {
   const queryResult = await handle.query(getGameInfoQuery);
-  expect(queryResult).toEqual(initInfo);
+  assert.deepStrictEqual(queryResult, initInfo);
 });
 
-test('pendulum updateGameInfoSignal', async () => {
+it('pendulum updateGameInfoSignal', async () => {
   const update = { ...gameInfo, anchorY: 1 };
   await handle.signal(updateGameInfoSignal, update);
   const queryResult = await handle.query(getGameInfoQuery);
-  expect(queryResult).toEqual(update);
+  assert.deepStrictEqual(queryResult, update);
 });

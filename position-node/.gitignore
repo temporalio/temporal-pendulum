@@ -2,3 +2,5 @@ coverage/
 lib/
 node_modules/
 *.tsbuildinfo
+
+.nyc_output

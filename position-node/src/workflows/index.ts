@@ -52,7 +52,7 @@ export async function pendulum(info: GameInfo): Promise<void> {
     exited.resolve();
   });
 
-  return await exited;
+  await exited;
 }
 
 export { pendulum as PositionWorkflow };
