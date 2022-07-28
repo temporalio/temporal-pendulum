@@ -7,14 +7,19 @@ import { after, afterEach, before, beforeEach, it } from 'mocha';
 import assert from 'assert';
 import fs from 'fs';
 
+import libCoverage from 'istanbul-lib-coverage';
+
 let handle: WorkflowHandle;
 let testEnv: TestWorkflowEnvironment;
 let runPromise: Promise<void>;
 let worker: Worker;
 
 const logger = new DefaultLogger('WARN', (entry: LogEntry) => console.log(`[${entry.level}]`, entry.message));
-const shouldWriteCoverage = !!process.env.COVERAGE;
 const taskQueue = 'test';
+
+// @ts-ignore
+const shouldWriteCoverage = global.__coverage__ != null;
+const coverageMap = libCoverage.createCoverageMap();
 
 const gameInfo: GameInfo = Object.freeze({
   anchorX: 0,
@@ -78,10 +83,13 @@ afterEach(async () => {
   }
 
   const testCoverage = await handle.query('__coverage__');
+  coverageMap.merge(testCoverage as libCoverage.CoverageMap);
+});
 
+after(() => {
   fs.writeFileSync(
-    `${__dirname}/../coverage/coverage-${handle.workflowId}.json`,
-    JSON.stringify(testCoverage),
+    `${__dirname}/../coverage/coverage.json`,
+    JSON.stringify(coverageMap),
   );
 });
 
