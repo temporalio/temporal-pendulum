@@ -1,6 +1,13 @@
+import { LoggerSinks } from './workflows/sinks';
 import { WorkflowHandle } from '@temporalio/client';
 import { TestWorkflowEnvironment } from '@temporalio/testing';
-import { Worker, Runtime, DefaultLogger, LogEntry, WorkflowBundleWithSourceMap, bundleWorkflowCode } from '@temporalio/worker';
+import {
+  Worker,
+  Runtime,
+  DefaultLogger,
+  LogEntry,
+  InjectedSinks,
+} from '@temporalio/worker';
 import { exitSignal, GameInfo, getGameInfoQuery, pendulum, updateGameInfoSignal } from './workflows';
 import { v4 as uuid4 } from 'uuid';
 import { after, afterEach, before, beforeEach, it } from 'mocha';
@@ -16,6 +23,17 @@ let worker: Worker;
 
 const logger = new DefaultLogger('WARN', (entry: LogEntry) => console.log(`[${entry.level}]`, entry.message));
 const taskQueue = 'test';
+
+const sinks: InjectedSinks<LoggerSinks> = {
+  coverage: {
+    merge: {
+      fn(_workflowInfo, testCoverage) {
+        coverageMap.merge(testCoverage as libCoverage.CoverageMap);
+      },
+      callDuringReplay: false, // The default
+    },
+  },
+};
 
 // @ts-ignore
 const shouldWriteCoverage = global.__coverage__ != null;
@@ -66,6 +84,7 @@ beforeEach(async () => {
     interceptors: {
       workflowModules: [require.resolve('./workflows/interceptors')]
     },
+    sinks,
   });
 
   runPromise = worker.run();
@@ -75,15 +94,6 @@ beforeEach(async () => {
     workflowId: uuid4(),
     taskQueue,
   });
-});
-
-afterEach(async () => {
-  if (!shouldWriteCoverage) {
-    return;
-  }
-
-  const testCoverage = await handle.query('__coverage__');
-  coverageMap.merge(testCoverage as libCoverage.CoverageMap);
 });
 
 after(() => {
