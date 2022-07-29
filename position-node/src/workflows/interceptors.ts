@@ -15,7 +15,9 @@ class CoverageInterceptor implements WorkflowInboundCallsInterceptor {
     const ret = await next(input);
 
     // @ts-ignore
-    coverage.merge(global.__coverage__);
+    const globalCoverage = global.__coverage__;
+    coverage.merge(JSON.parse(JSON.stringify(globalCoverage)));
+    clearCoverage(globalCoverage);
 
     return ret;
   }
@@ -24,7 +26,9 @@ class CoverageInterceptor implements WorkflowInboundCallsInterceptor {
     const ret = await next(input);
 
     // @ts-ignore
-    coverage.merge(global.__coverage__);
+    const globalCoverage = global.__coverage__;
+    coverage.merge(JSON.parse(JSON.stringify(globalCoverage)));
+    clearCoverage(globalCoverage);
 
     return ret;
   }
@@ -33,7 +37,9 @@ class CoverageInterceptor implements WorkflowInboundCallsInterceptor {
     const ret = await next(input);
 
     // @ts-ignore
-    coverage.merge(global.__coverage__);
+    const globalCoverage = global.__coverage__;
+    coverage.merge(JSON.parse(JSON.stringify(globalCoverage)));
+    clearCoverage(globalCoverage);
 
     return ret;
   }
@@ -43,3 +49,11 @@ class CoverageInterceptor implements WorkflowInboundCallsInterceptor {
 export const interceptors: WorkflowInterceptorsFactory = () => ({
   inbound: [new CoverageInterceptor()],
 });
+
+function clearCoverage(coverage: any): void {
+  for (const path of Object.keys(coverage)) {
+    for (const index of Object.keys(coverage[path].s)) {
+      coverage[path].s[index] = 0;
+    }
+  }
+}
