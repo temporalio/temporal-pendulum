@@ -8,7 +8,7 @@ import {
   LogEntry,
   InjectedSinks,
 } from '@temporalio/worker';
-import { exitSignal, GameInfo, getGameInfoQuery, pendulum, updateGameInfoSignal } from './workflows';
+import { exitSignal, GameInfo, getGameInfoQuery, pendulum, setupMoveSignal, updateGameInfoSignal } from './workflows';
 import { v4 as uuid4 } from 'uuid';
 import { after, afterEach, before, beforeEach, it } from 'mocha';
 import assert from 'assert';
@@ -97,10 +97,15 @@ beforeEach(async () => {
 });
 
 after(() => {
-  fs.writeFileSync(
-    `${__dirname}/../coverage/coverage.json`,
-    JSON.stringify(coverageMap),
-  );
+  // @ts-ignore
+  coverageMap.merge(global.__coverage__);
+  // @ts-ignore
+  global.__coverage__ = Object.keys(coverageMap.data).reduce((cur, path) => {
+    const fileCoverage = coverageMap.data[path];
+    // @ts-ignore
+    cur[path] = fileCoverage.data;
+    return cur;
+  }, {});
 });
 
 afterEach(async () => {

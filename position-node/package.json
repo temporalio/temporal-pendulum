@@ -10,7 +10,7 @@
     "start": "ts-node src/worker.ts",
     "start.watch": "nodemon src/worker.ts",
     "test": "mocha lib/*.test.js",
-    "test.coverage": "rm -rf ./coverage && npm run build && nyc instrument lib lib --in-place && env COVERAGE=1 mocha lib/*.test.js && nyc report -t coverage --reporter=lcov --reporter=text-summary"
+    "test.coverage": "rm -rf ./coverage && npm run build && nyc instrument lib lib --in-place && nyc --reporter=lcov --reporter=text-summary mocha lib/*.test.js"
   },
   "nodemonConfig": {
     "execMap": {

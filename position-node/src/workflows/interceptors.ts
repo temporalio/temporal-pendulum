@@ -16,8 +16,6 @@ class CoverageInterceptor implements WorkflowInboundCallsInterceptor {
 
     // @ts-ignore
     coverage.merge(global.__coverage__);
-    // @ts-ignore
-    global.__coverage__ = {};
 
     return ret;
   }
@@ -27,8 +25,6 @@ class CoverageInterceptor implements WorkflowInboundCallsInterceptor {
 
     // @ts-ignore
     coverage.merge(global.__coverage__);
-    // @ts-ignore
-    global.__coverage__ = {};
 
     return ret;
   }
@@ -38,8 +34,6 @@ class CoverageInterceptor implements WorkflowInboundCallsInterceptor {
 
     // @ts-ignore
     coverage.merge(global.__coverage__);
-    // @ts-ignore
-    global.__coverage__ = {};
 
     return ret;
   }
