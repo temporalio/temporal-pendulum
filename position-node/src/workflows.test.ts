@@ -37,11 +37,7 @@ beforeAll(async () => {
     logger,
   });
 
-  testEnv = await TestWorkflowEnvironment.create({
-    testServer: {
-      stdio: 'inherit',
-    },
-  });
+  testEnv = await TestWorkflowEnvironment.createTimeSkipping();
 
   workflowBundle = await bundleWorkflowCode({
     workflowsPath: require.resolve('./workflows'),
@@ -50,7 +46,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  const { nativeConnection } = testEnv;
+  const { client, nativeConnection } = testEnv;
   worker = await Worker.create({
     connection: nativeConnection,
     taskQueue,
@@ -59,8 +55,7 @@ beforeEach(async () => {
   });
 
   runPromise = worker.run();
-
-  handle = await testEnv.workflowClient.start(pendulum, {
+  handle = await client.workflow.start(pendulum, {
     args: [initInfo],
     workflowId: uuid4(),
     taskQueue,
