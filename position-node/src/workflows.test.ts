@@ -42,21 +42,21 @@ beforeAll(async () => {
 
   testEnv = await TestWorkflowEnvironment.createTimeSkipping();
 
-  workflowBundle = await bundleWorkflowCode({
-    workflowsPath: require.resolve('./workflows'),
-    logger,
-  });
+  workflowBundle = await bundleWorkflowCode(
+    workflowCoverage.augmentBundleOptions({
+      workflowsPath: require.resolve('./workflows'),
+      logger,
+    })
+  )
 });
 
 beforeEach(async () => {
   const { client, nativeConnection } = testEnv;
-  worker = await Worker.create(
-    workflowCoverage.augmentWorkerOptionsWithBundle({
-      connection: nativeConnection,
-      taskQueue,
-      workflowBundle,
-    })
-  );
+  worker = await Worker.create({
+    connection: nativeConnection,
+    taskQueue,
+    workflowBundle,
+  });
 
   runPromise = worker.run();
   handle = await client.workflow.start(pendulum, {
