@@ -24,6 +24,7 @@
     "temporalio": "^1.4.2"
   },
   "devDependencies": {
+    "@temporalio/nyc-test-coverage": "^1.4.2",
     "@temporalio/testing": "^1.4.2",
     "@tsconfig/node16": "^1.0.2",
     "@types/jest": "^29.1.2",
