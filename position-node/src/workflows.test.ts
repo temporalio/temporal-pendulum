@@ -52,11 +52,13 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   const { client, nativeConnection } = testEnv;
-  worker = await Worker.create({
-    connection: nativeConnection,
-    taskQueue,
-    workflowBundle,
-  });
+  worker = await Worker.create(
+    workflowCoverage.augmentWorkerOptionsWithBundle({
+      connection: nativeConnection,
+      taskQueue,
+      workflowBundle,
+    })
+  );
 
   runPromise = worker.run();
   handle = await client.workflow.start(pendulum, {
