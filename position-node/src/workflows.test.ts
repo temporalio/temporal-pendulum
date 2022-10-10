@@ -85,9 +85,6 @@ afterEach(async() => {
 
 afterAll(async () => {
   await testEnv?.teardown();
-});
-
-afterAll(() => {
   workflowCoverage.mergeIntoGlobalCoverage();
 });
 
