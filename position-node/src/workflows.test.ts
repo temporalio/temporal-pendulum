@@ -1,4 +1,5 @@
 import { WorkflowHandle } from '@temporalio/client';
+import { WorkflowCoverage } from '@temporalio/nyc-test-coverage';
 import { TestWorkflowEnvironment } from '@temporalio/testing';
 import { Worker, Runtime, DefaultLogger, LogEntry, WorkflowBundleWithSourceMap, bundleWorkflowCode } from '@temporalio/worker';
 import { exitSignal, GameInfo, getGameInfoQuery, pendulum, updateGameInfoSignal } from './workflows';
@@ -10,8 +11,12 @@ let runPromise: Promise<void>;
 let worker: Worker;
 let workflowBundle: WorkflowBundleWithSourceMap;
 
+// Use console.log instead of console.error to avoid red output
+// Filter INFO log messages for clearer test output
 const logger = new DefaultLogger('WARN', (entry: LogEntry) => console.log(`[${entry.level}]`, entry.message));
 const taskQueue = 'test';
+
+const workflowCoverage = new WorkflowCoverage();
 
 const gameInfo: GameInfo = Object.freeze({
   anchorX: 0,
@@ -31,36 +36,32 @@ const gameInfo: GameInfo = Object.freeze({
 const initInfo = { ...gameInfo, anchorX: 1 };
 
 beforeAll(async () => {
-  // Use console.log instead of console.error to avoid red output
-  // Filter INFO log messages for clearer test output
   Runtime.install({
     logger,
   });
 
-  testEnv = await TestWorkflowEnvironment.create({
-    testServer: {
-      stdio: 'inherit',
-    },
-  });
+  testEnv = await TestWorkflowEnvironment.createTimeSkipping();
 
-  workflowBundle = await bundleWorkflowCode({
-    workflowsPath: require.resolve('./workflows'),
-    logger,
-  });
+  workflowBundle = await bundleWorkflowCode(
+    workflowCoverage.augmentBundleOptions({
+      workflowsPath: require.resolve('./workflows'),
+      logger,
+    })
+  )
 });
 
 beforeEach(async () => {
-  const { nativeConnection } = testEnv;
-  worker = await Worker.create({
-    connection: nativeConnection,
-    taskQueue,
-    workflowBundle,
-    activities: undefined,
-  });
+  const { client, nativeConnection } = testEnv;
+  worker = await Worker.create(
+    workflowCoverage.augmentWorkerOptionsWithBundle({
+      connection: nativeConnection,
+      taskQueue,
+      workflowBundle,
+    })
+  );
 
   runPromise = worker.run();
-
-  handle = await testEnv.workflowClient.start(pendulum, {
+  handle = await client.workflow.start(pendulum, {
     args: [initInfo],
     workflowId: uuid4(),
     taskQueue,
@@ -86,6 +87,7 @@ afterEach(async() => {
 
 afterAll(async () => {
   await testEnv?.teardown();
+  workflowCoverage.mergeIntoGlobalCoverage();
 });
 
 test('pendulum exitSignal', async () => {
